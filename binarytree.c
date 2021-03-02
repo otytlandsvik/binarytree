@@ -54,6 +54,9 @@ static node_t *new_node(void *elem) {
     return node;
 }
 
+/*
+ * Recursive help function for tree_add
+ */
 static int _tree_add(node_t *current, cmpfunc_t cmp, void *elem) {
     /* if elem is smaller, go left */
     if (cmp(elem, current->elem) < 0) {
@@ -61,7 +64,7 @@ static int _tree_add(node_t *current, cmpfunc_t cmp, void *elem) {
             current->left = new_node(elem);
             return 1;
         }
-        _tree_add(current->left, cmp, elem); // Keep searching
+        return _tree_add(current->left, cmp, elem); // Keep searching
     /* if elem is larger, go right */
     }
     if (cmp(elem, current->elem) > 0) {
@@ -69,11 +72,12 @@ static int _tree_add(node_t *current, cmpfunc_t cmp, void *elem) {
             current->right = new_node(elem);
             return 1;
         }
-        _tree_add(current->right, cmp, elem); // Keep searching
+        return _tree_add(current->right, cmp, elem); // Keep searching
     }
 
     // If elem is already in tree, don't add it
-    return 0;
+    if (cmp(elem, current->elem) == 0)
+        return 0;
 
 }
 
@@ -101,6 +105,9 @@ int tree_getsize(tree_t *tree) {
     return tree->size;
 }
 
+/*
+ * Recursive help function for tree_print
+ */
 static void _tree_print(node_t *current) {
     if (current == NULL)
         return;
