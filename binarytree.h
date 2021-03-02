@@ -24,6 +24,11 @@ void tree_destroy(tree_t *tree);
 void tree_add(tree_t *tree, void *elem);
 
 /*
+ * Get amount of elements in tree
+ */
+int tree_getsize(tree_t *tree);
+
+/*
  * Prints tree in order
  */
 void tree_print(tree_t *tree);

@@ -7,6 +7,7 @@
 struct tree {
     node_t *root;
     cmpfunc_t cmp;
+    size_t size;
 };
 
 struct node {
@@ -27,6 +28,7 @@ tree_t *tree_create(cmpfunc_t cmp) {
     /* Assign values */
     tree->root = NULL;
     tree->cmp = cmp;
+    tree->size = 0;
 
     return tree;
 }
@@ -52,12 +54,12 @@ static node_t *new_node(void *elem) {
     return node;
 }
 
-static void _tree_add(node_t *current, cmpfunc_t cmp, void *elem) {
+static int _tree_add(node_t *current, cmpfunc_t cmp, void *elem) {
     /* if elem is smaller, go left */
     if (cmp(elem, current->elem) < 0) {
         if (current->left == NULL) { // Add node here
             current->left = new_node(elem);
-            return;
+            return 1;
         }
         _tree_add(current->left, cmp, elem); // Keep searching
     /* if elem is larger, go right */
@@ -65,13 +67,13 @@ static void _tree_add(node_t *current, cmpfunc_t cmp, void *elem) {
     if (cmp(elem, current->elem) > 0) {
         if (current->right == NULL) { // Add node here
             current->right = new_node(elem);
-            return;
+            return 1;
         }
         _tree_add(current->right, cmp, elem); // Keep searching
     }
 
     // If elem is already in tree, don't add it
-    return;
+    return 0;
 
 }
 
@@ -83,11 +85,20 @@ void tree_add(tree_t *tree, void *elem) {
     // If tree is empty, add a root
     if (tree->root == NULL) {
         tree->root = new_node(elem);
+        tree->size++;
         return;
     }
 
     // If tree is non-empty, find the nodes place
-    _tree_add(tree->root, tree->cmp, elem);
+    if (_tree_add(tree->root, tree->cmp, elem))
+        tree->size++;
+}
+
+/*
+ * Get amount of elements in tree
+ */
+int tree_getsize(tree_t *tree) {
+    return tree->size;
 }
 
 static void _tree_print(node_t *current) {
