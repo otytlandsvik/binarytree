@@ -54,7 +54,7 @@ static node_t *new_node(void *elem) {
 
 static void _tree_add(node_t *current, cmpfunc_t cmp, void *elem) {
     /* if elem is smaller, go left */
-    if (cmp(elem, current->elem) < 1) {
+    if (cmp(elem, current->elem) < 0) {
         if (current->left == NULL) { // Add node here
             current->left = new_node(elem);
             return;
@@ -62,7 +62,7 @@ static void _tree_add(node_t *current, cmpfunc_t cmp, void *elem) {
         _tree_add(current->left, cmp, elem); // Keep searching
     /* if elem is larger, go right */
     }
-    if (cmp(elem, current->elem) > 1) {
+    if (cmp(elem, current->elem) > 0) {
         if (current->right == NULL) { // Add node here
             current->right = new_node(elem);
             return;
@@ -107,6 +107,7 @@ void tree_print(tree_t *tree) {
         printf("Tree is empty\n");
         return;
     }
-
+    // If tree is non-empty, print it
     _tree_print(tree->root);
+    printf("\n");
 }
