@@ -34,9 +34,14 @@ int tree_getsize(tree_t *tree);
 void tree_print(tree_t *tree);
 
 /*
- * Removes a given element from the binary tree
+ * Removes a given element from the binary tree, if it exists
  */
 void tree_remove(tree_t *tree, void *elem);
+
+/*
+ * Chech whether an element is contained in a given tree
+ */
+int tree_contains(tree_t *tree, void *elem);
 
 /* Tree iterator */
 typedef struct tree_iter tree_iter_t;

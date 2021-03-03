@@ -129,3 +129,48 @@ void tree_print(tree_t *tree) {
     _tree_print(tree->root);
     printf("\n");
 }
+
+/*
+ * Recursive help function for tree_remove
+ */
+static void _tree_remove(node_t *current, void *elem) {
+    /* If it is a leaf node */
+    if (current->left == NULL && current->right == NULL) {
+        free(current->elem);
+        free(current);
+    }
+}
+
+/*
+ * Removes a given element from the binary tree, if it exists
+ */
+void tree_remove(tree_t *tree, void *elem) {
+    /* Do nothing if tree is empty */
+    if (tree->root == NULL)
+        return;
+    /* Check if the root is to be removed */
+    if (tree->cmp(tree->root->elem, elem) == 0) {
+
+    }
+
+
+    _tree_remove(tree->root, elem);
+}
+
+/*
+ * Recursive help function for tree_contains
+ */
+static int _tree_contains(node_t *current, void *elem) {
+}
+
+/*
+ * Chech whether an element is contained in a given tree
+ */
+int tree_contains(tree_t *tree, void *elem) {
+    /* Return 0 if tree is empty */
+    if (tree->root == NULL)
+        return 0;
+    
+    _tree_contains(tree->root, elem);
+
+}
