@@ -38,6 +38,7 @@ int main() {
     tree_print(tree);
 
     printf("size: %d\n", tree_getsize(tree));
+    printf("Tree contains num: %d\n", tree_contains(tree, newint(7)));
 
     
 }

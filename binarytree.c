@@ -160,17 +160,33 @@ void tree_remove(tree_t *tree, void *elem) {
 /*
  * Recursive help function for tree_contains
  */
-static int _tree_contains(node_t *current, void *elem) {
+static int _tree_contains(node_t *current, cmpfunc_t cmp, void *elem) {
+    /* Return if we reach bottom */
+    if (current == NULL)
+        return 0;
+
+    /* Return 1 if we have found elem */
+    if (cmp(elem, current->elem) == 0)
+        return 1;
+    
+    /* Otherwise, keep searching */
+    if (_tree_contains(current->left, cmp, elem))
+        return 1;
+    if (_tree_contains(current->right, cmp, elem))
+        return 1;
+    
+    /* Return 0 if elem was not in subtree */
+    return 0;
 }
 
 /*
- * Chech whether an element is contained in a given tree
+ * Check whether an element is contained in a given tree
  */
 int tree_contains(tree_t *tree, void *elem) {
     /* Return 0 if tree is empty */
     if (tree->root == NULL)
         return 0;
     
-    _tree_contains(tree->root, elem);
+    return _tree_contains(tree->root, tree->cmp, elem);
 
 }
