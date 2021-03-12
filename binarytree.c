@@ -130,15 +130,49 @@ void tree_print(tree_t *tree) {
     printf("\n");
 }
 
-/*
- * Recursive help function for tree_remove
- */
-static void _tree_remove(node_t *current, void *elem) {
+static void _node_remove(node_t *previous, node_t *current) {
     /* If it is a leaf node */
     if (current->left == NULL && current->right == NULL) {
         free(current->elem);
         free(current);
+        return;
     }
+    /* If it has one child */
+    node_t *replaceNode;
+    if (current->left == NULL)
+        replaceNode = current->left;
+    if (current->right == NULL)
+        replaceNode = current->right;
+
+    // Swap the nodes
+    if (replaceNode != NULL) {
+
+    }
+}
+
+/*
+ * Recursive help function for finding the node to be removed. 
+ * Returns 1 if node has been found and removed, 0 otherwise.
+ */
+static int _tree_remove(cmpfunc_t cmp, node_t *current, void *elem) {
+    /* If this is a leaf node, return */
+    if (current->left == NULL && current->right == NULL)
+        return 0;
+    /* If any of the children have the element, remove it */
+    if (cmp(current->left->elem, elem) == 0) {
+        _node_remove(current, current->left);
+        return 1;
+    }
+    if (cmp(current->right->elem, elem) == 0) {
+        _node_remove(current, current->right);
+        return 1;
+    }
+    
+    /* If item was not found, continue */
+    if (_tree_remove(cmp, current->left, elem) == 1)
+        return 1;
+    if (_tree_remove(cmp, current->right, elem) == 1)
+        return 1;
 }
 
 /*
@@ -154,7 +188,7 @@ void tree_remove(tree_t *tree, void *elem) {
     }
 
 
-    _tree_remove(tree->root, elem);
+    _tree_remove(tree->cmp, tree->root, elem);
 }
 
 /*
