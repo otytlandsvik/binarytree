@@ -129,10 +129,28 @@ void tree_print(tree_t *tree) {
     _tree_print(tree->root);
     printf("\n");
 }
-
-static void _node_remove(node_t *previous, node_t *current) {
+/*
+ * Finds the leftmost leaf node
+ */
+static node_t *_find_replacenode(node_t *current) {
+    if (current->left == NULL)
+        return current;
+    
+    return _find_replacenode(current->left);
+}
+/*
+ * Removes a node and replaces it
+ */
+static void _node_remove(node_t *previous, node_t *current, char side) {
     /* If it is a leaf node */
     if (current->left == NULL && current->right == NULL) {
+        // NULL terminate the tree
+        if (side == 'l') {
+            previous->left == NULL;
+        } else if (side == 'r') {
+            previous->right == NULL;
+        }
+        // Free node
         free(current->elem);
         free(current);
         return;
@@ -140,13 +158,23 @@ static void _node_remove(node_t *previous, node_t *current) {
     /* If it has one child */
     node_t *replaceNode;
     if (current->left == NULL)
-        replaceNode = current->left;
-    if (current->right == NULL)
         replaceNode = current->right;
+    if (current->right == NULL)
+        replaceNode = current->left;
+
+    /* If it has two children */
+    replaceNode = _find_replacenode(current->left);
 
     // Swap the nodes
     if (replaceNode != NULL) {
-
+        if (side == 'l') {
+            previous->left = replaceNode;
+        } else if (side == 'r') {
+            previous->right = replaceNode;
+        }
+        // Free node
+        free(current->elem);
+        free(current);
     }
 }
 
@@ -159,20 +187,20 @@ static int _tree_remove(cmpfunc_t cmp, node_t *current, void *elem) {
     if (current->left == NULL && current->right == NULL)
         return 0;
     /* If any of the children have the element, remove it */
-    if (cmp(current->left->elem, elem) == 0) {
-        _node_remove(current, current->left);
-        return 1;
+    if (current->left != NULL) {
+        if (cmp(current->left->elem, elem) == 0) {
+            _node_remove(current, current->left, 'l');
+            return 1;
+        }
+        return _tree_remove(cmp, current->left, elem);
     }
-    if (cmp(current->right->elem, elem) == 0) {
-        _node_remove(current, current->right);
-        return 1;
-    }
-    
-    /* If item was not found, continue */
-    if (_tree_remove(cmp, current->left, elem) == 1)
-        return 1;
-    if (_tree_remove(cmp, current->right, elem) == 1)
-        return 1;
+    if (current->right != NULL) {
+        if (cmp(current->right->elem, elem) == 0) {
+            _node_remove(current, current->right, 'r');
+            return 1;
+        }
+        return _tree_remove(cmp, current->right, elem);
+    }    
 }
 
 /*
@@ -186,9 +214,12 @@ void tree_remove(tree_t *tree, void *elem) {
     if (tree->cmp(tree->root->elem, elem) == 0) {
 
     }
+    /* A node that points to root */
+    node_t *p_to_root = new_node(NULL);
+    p_to_root->right = tree->root;
 
-
-    _tree_remove(tree->cmp, tree->root, elem);
+    int p = _tree_remove(tree->cmp, p_to_root, elem);
+    printf("item was removed: %d\n", p);
 }
 
 /*
