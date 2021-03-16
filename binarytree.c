@@ -130,18 +130,10 @@ void tree_print(tree_t *tree) {
     printf("\n");
 }
 /*
- * Finds the leftmost leaf node
- */
-static node_t *_find_replacenode(node_t *current) {
-    if (current->left == NULL)
-        return current;
-    
-    return _find_replacenode(current->left);
-}
-/*
  * Removes a node and replaces it
  */
 static void _node_remove(node_t *previous, node_t *current, char side) {
+    printf("I'm being removed\n");
     /* If it is a leaf node */
     if (current->left == NULL && current->right == NULL) {
         // NULL terminate the tree
@@ -156,25 +148,39 @@ static void _node_remove(node_t *previous, node_t *current, char side) {
         return;
     }
     /* If it has one child */
-    node_t *replaceNode;
+    node_t *replaceNode = NULL;
+    node_t *replacePrev = NULL;
     if (current->left == NULL)
         replaceNode = current->right;
     if (current->right == NULL)
         replaceNode = current->left;
 
     /* If it has two children */
-    replaceNode = _find_replacenode(current->left);
-
-    // Swap the nodes
+    if (current->left != NULL && current->right != NULL) {
+        replacePrev = current;
+        replaceNode = current->right;
+        while (replaceNode->left != NULL) {
+            replacePrev = replaceNode;
+            replaceNode = replaceNode->left;
+        }
+        printf("Node has two children\n");
+    }
+    /*  Swap the nodes */
     if (replaceNode != NULL) {
+        // Set correct children
+        replacePrev->left = replaceNode->right;
+        replaceNode->left = current->left;
+        replaceNode->right = current->right;
+        // Insert replacement node
         if (side == 'l') {
             previous->left = replaceNode;
         } else if (side == 'r') {
             previous->right = replaceNode;
         }
-        // Free node
+        // Free old node
         free(current->elem);
         free(current);
+        printf("Replacement node: %d, side: %c\n", *(int *)replaceNode->elem, side);
     }
 }
 
@@ -183,6 +189,8 @@ static void _node_remove(node_t *previous, node_t *current, char side) {
  * Returns 1 if node has been found and removed, 0 otherwise.
  */
 static int _tree_remove(cmpfunc_t cmp, node_t *current, void *elem) {
+    if (current->elem != NULL)
+        printf("Checking node: %d\n", *(int *)current->elem);
     /* If this is a leaf node, return */
     if (current->left == NULL && current->right == NULL)
         return 0;
@@ -192,15 +200,18 @@ static int _tree_remove(cmpfunc_t cmp, node_t *current, void *elem) {
             _node_remove(current, current->left, 'l');
             return 1;
         }
-        return _tree_remove(cmp, current->left, elem);
+        
+        if (current->elem != NULL && cmp(current->elem, elem) < 0) 
+            return _tree_remove(cmp, current->left, elem);
     }
     if (current->right != NULL) {
         if (cmp(current->right->elem, elem) == 0) {
             _node_remove(current, current->right, 'r');
             return 1;
         }
-        return _tree_remove(cmp, current->right, elem);
-    }    
+        if(current->elem != NULL && cmp(current->elem, elem) > 0) 
+            return _tree_remove(cmp, current->right, elem);
+    }
 }
 
 /*
@@ -210,16 +221,23 @@ void tree_remove(tree_t *tree, void *elem) {
     /* Do nothing if tree is empty */
     if (tree->root == NULL)
         return;
-    /* Check if the root is to be removed */
-    if (tree->cmp(tree->root->elem, elem) == 0) {
-
-    }
+    
+    printf("To remove: %d\n", *(int *)elem);
     /* A node that points to root */
     node_t *p_to_root = new_node(NULL);
     p_to_root->right = tree->root;
 
     int p = _tree_remove(tree->cmp, p_to_root, elem);
-    printf("item was removed: %d\n", p);
+
+    if (p_to_root->right != tree->root)
+        tree->root = p_to_root->right;
+
+    printf("New root: %d\n", *(int *)tree->root->elem);
+
+    if (p == 1) {
+        tree->size--;
+        printf("item was removed.");
+    }
 }
 
 /*

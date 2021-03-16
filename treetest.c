@@ -25,22 +25,21 @@ int main() {
     tree_add(tree, newint(5));
     tree_add(tree, newint(2));
     tree_add(tree, newint(9));
-    tree_add(tree, newint(3));
     tree_add(tree, newint(6));
     tree_add(tree, newint(7));
     tree_add(tree, newint(1));
+    tree_add(tree, newint(12));
+    tree_add(tree, newint(43));
     tree_add(tree, newint(4));
-    tree_add(tree, newint(4));
-    tree_add(tree, newint(4));
-    tree_add(tree, newint(4));
-    tree_add(tree, newint(4));
-
-    tree_remove(tree, newint(7));
+    tree_add(tree, newint(11));
+    
+    tree_remove(tree, newint(5));
 
     //tree_print(tree);
 
     printf("size: %d\n", tree_getsize(tree));
-    printf("Tree contains num: %d\n", tree_contains(tree, newint(7)));
+    tree_print(tree);
+    //printf("Tree contains num: %d\n", tree_contains(tree, newint(7)));
 
     
 }
